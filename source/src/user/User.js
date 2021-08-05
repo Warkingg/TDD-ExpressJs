@@ -13,7 +13,16 @@ User.init(
     email: {
       type: Sequelize.STRING,
     },
-    password: Sequelize.STRING,
+    password: {
+      type: Sequelize.STRING,
+    },
+    inactive: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true,
+    },
+    activationToken: {
+      type: Sequelize.STRING,
+    },
   },
   {
     sequelize,
