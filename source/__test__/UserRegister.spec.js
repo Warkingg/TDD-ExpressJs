@@ -16,7 +16,7 @@ const validUser = {
   username: 'user1',
   email: 'user1@mail.com',
   password: 'P4ssword',
-}
+};
 describe('User Registration', () => {
   const postUser = (user = validUser) => {
     return request(app).post('/api/1.0/users').send(user);
@@ -99,5 +99,15 @@ describe('User Registration', () => {
     });
     const body = response.body;
     expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
+  });
+
+  it('returns password cannot be null message when password is null', async () => {
+    const response = await postUser({
+      username: 'user1',
+      email: 'user1@mail.com',
+      password: null,
+    });
+    const body = response.body;
+    expect(body.validationErrors.password).toBe('Password cannot be null');
   });
 });
