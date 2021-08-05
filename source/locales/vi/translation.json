@@ -7,5 +7,6 @@
   "password_size": "Mật khẩu cần ít nhất 6 kí tự",
   "password_pattern": "Mật khẩu cần ít nhất 1 chữ in hoa, 1 chữ thường và 1 chữ số",
   "email_isalreadyregisted": "E-mail đã được đăng ký",
-  "user_create_success": "Đăng ký thành công"
+  "user_create_success": "Đăng ký thành công",
+  "email_failure": "Gửi E-mail không thành công"
 }
