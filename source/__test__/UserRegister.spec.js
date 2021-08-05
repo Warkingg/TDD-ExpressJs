@@ -3,6 +3,7 @@ const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
 const { response } = require('express');
+const { post } = require('../src/user/UserRouter');
 
 beforeAll(() => {
   return sequelize.sync();
@@ -81,22 +82,6 @@ describe('User Registration', () => {
     expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
   });
 
-  // it.each([
-  //   ['username', 'Username cannot be null'],
-  //   ['email', 'E-mail cannot be null'],
-  //   ['password', 'Password cannot be null'],
-  // ])('when %s is null %s is received', async (field, expectedMessage) => {
-  //   const user = {
-  //     username: 'user1',
-  //     email: 'user1@mail.com',
-  //     passowrd: 'P4ssword',
-  //   };
-  //   user[field] = null;
-  //   const response = await postUser(user);
-  //   const body = response.body;
-  //   expect(body.validationErrors[field]).toBe(expectedMessage);
-  // });
-
   it.each`
     field         | value              | expectedMessage
     ${'username'} | ${null}            | ${'Username cannot be null'}
@@ -110,10 +95,10 @@ describe('User Registration', () => {
     ${'password'} | ${'P4ssw'}         | ${'Password must be at least 6 characters'}
     ${'password'} | ${'alllowercase'}  | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
     ${'password'} | ${'ALLUPPERCASE'}  | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
-    ${'password'} | ${'1234567890'}  | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
-    ${'password'} | ${'lowerandUPPER'}  | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
+    ${'password'} | ${'1234567890'}    | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
+    ${'password'} | ${'lowerandUPPER'} | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
     ${'password'} | ${'lower4nd5667'}  | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
-    ${'password'} | ${'UPPER4444'}  | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
+    ${'password'} | ${'UPPER4444'}     | ${'Password must have at least 1 uppercase, 1 lowercase and 1 number'}
   `('returns $expectedMessage when $field is $value', async ({ field, expectedMessage, value }) => {
     const user = {
       username: 'user1',
@@ -126,14 +111,20 @@ describe('User Registration', () => {
     expect(body.validationErrors[field]).toBe(expectedMessage);
   });
 
-  // it('returns size validation error when username is less than 4 characters', async () => {
-  //   const user = {
-  //     username: 'usr',
-  //     email: 'user1@mail.com',
-  //     passowrd: 'P4ssword',
-  //   };
-  //   const response = await postUser(user);
-  //   const body = response.body;
-  //   expect(body.validationErrors.username).toBe('Must have min 4 and max 32 characters');
-  // });
+  it('returns E-mail is already registed when same email is already registed', async () => {
+    await User.create({ ...validUser });
+    const response = await postUser();
+    expect(response.body.validationErrors.email).toBe('E-mail is already registed');
+  });
+
+  it('returns errors for both username is null and email is already registed', async () => {
+    await User.create({ ...validUser });
+    const response = await postUser({
+      username: null,
+      email: validUser.email,
+      password: 'P4ssword',
+    });
+    const body = response.body;
+    expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
+  });
 });

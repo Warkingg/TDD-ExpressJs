@@ -2,6 +2,7 @@ const express = require('express');
 const UserService = require('./UserService');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
+const User = require('./User');
 
 router.post(
   '/api/1.0/users',
@@ -11,7 +12,19 @@ router.post(
     .bail()
     .isLength({ min: 4, max: 32 })
     .withMessage('Must have min 4 and max 32 characters'),
-  check('email').notEmpty().withMessage('E-mail cannot be null').bail().isEmail().withMessage('E-mail is not valid'),
+  check('email')
+    .notEmpty()
+    .withMessage('E-mail cannot be null')
+    .bail()
+    .isEmail()
+    .withMessage('E-mail is not valid')
+    .bail()
+    .custom(async (email) => {
+      const user = await UserService.findByEmail(email);
+      if (user) {
+        throw new Error('E-mail is already registed');
+      }
+    }),
   check('password')
     .notEmpty()
     .withMessage('Password cannot be null')
