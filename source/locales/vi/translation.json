@@ -1,0 +1,11 @@
+{
+  "username_null": "Tên đăng nhập không được để trống",
+  "username_size": "Tên đăng nhập cần ít nhất 4 kí tự và tối đa 32 kí tự",
+  "email_null": "E-mail không được để trống",
+  "email_invalid": "E-mail không tồn tại",
+  "password_null": "Mật khẩu không được để trống",
+  "password_size": "Mật khẩu cần ít nhất 6 kí tự",
+  "password_pattern": "Mật khẩu cần ít nhất 1 chữ in hoa, 1 chữ thường và 1 chữ số",
+  "email_isalreadyregisted": "E-mail đã được đăng ký",
+  "user_create_success": "Đăng ký thành công"
+}
