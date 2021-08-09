@@ -94,3 +94,56 @@ describe('Listing User', () => {
     expect(response.body.page).toBe(0);
   });
 });
+
+describe('Get User', () => {
+  const getUSer = (id = 5) => {
+    return request(app).get('/api/1.0/users/' + id);
+  };
+  it('returns 404 when user not found', async () => {
+    const response = await getUSer();
+    expect(response.status).toBe(404);
+  });
+  it.each`
+    language | message
+    ${'vi'}  | ${'Không tìm thấy người dùng'}
+    ${'en'}  | ${'User not found'}
+  `('returns $message for unknown user when language is set as $language', async ({ language, message }) => {
+    const response = await request(app).get('/api/1.0/users/5').set('Accept-Language', language);
+    expect(response.body.message).toBe(message);
+  });
+  it('returns proper error body when user not found', async () => {
+    const nowInMillis = new Date().getTime();
+    const response = await getUSer();
+    const error = response.body;
+    expect(error.path).toBe('/api/1.0/users/5');
+    expect(error.timestamp).toBeGreaterThan(nowInMillis);
+    expect(Object.keys(error)).toEqual(['path', 'timestamp', 'message']);
+  });
+  it('returns 200 when an active user exist', async () => {
+    const user = await User.create({
+      username: 'user1',
+      email: 'user1@gmail.com',
+      inactive: false,
+    });
+    const response = await getUSer(user.id);
+    expect(response.status).toBe(200);
+  });
+  it('returns id, username and email in response body when an active user exist', async () => {
+    const user = await User.create({
+      username: 'user1',
+      email: 'user1@gmail.com',
+      inactive: false,
+    });
+    const response = await getUSer(user.id);
+    expect(Object.keys(response.body)).toEqual(['id', 'username', 'email']);
+  });
+  it('returns 404 when an active user inactive', async () => {
+    const user = await User.create({
+      username: 'user1',
+      email: 'user1@gmail.com',
+      inactive: true,
+    });
+    const response = await getUSer(user.id);
+    expect(response.status).toBe(404);
+  });
+});

@@ -11,5 +11,6 @@
   "email_failure": "Gửi E-mail không thành công",
   "account_activation_failure": "Tài khoản này chưa được kích hoạt hoặc token không khả dụng",
   "account_activation_success": "Tài khoản đã được kích hoạt",
-  "validation_failure": "Xác thực thất bại"
+  "validation_failure": "Xác thực thất bại",
+  "user_not_found": "Không tìm thấy người dùng"
 }
