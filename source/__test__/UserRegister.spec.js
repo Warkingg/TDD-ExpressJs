@@ -38,6 +38,8 @@ beforeEach(async () => {
 
 afterAll(async () => {
   await server.close();
+  //Set timeout to 20000 if some tests are fails due to A.P server problem
+  jest.setTimeout(5000);
 });
 
 const validUser = {
