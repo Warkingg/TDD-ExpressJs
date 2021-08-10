@@ -2,9 +2,14 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
+const en = require('../locales/en/translation.json');
+const vi = require('../locales/vi/translation.json');
 
 beforeAll(async () => {
   await sequelize.sync();
+});
+beforeEach(async () => {
+  await User.destroy({ truncate: true });
 });
 
 const getUsers = () => {
@@ -20,9 +25,6 @@ const addUsers = async (activeUserCount, inactiveUserCount = 0) => {
     });
   }
 };
-beforeEach(() => {
-  return User.destroy({ truncate: true });
-});
 describe('Listing User', () => {
   it('returns 200 ok when there are no user in database', async () => {
     const response = await getUsers();
@@ -105,8 +107,8 @@ describe('Get User', () => {
   });
   it.each`
     language | message
-    ${'vi'}  | ${'Không tìm thấy người dùng'}
-    ${'en'}  | ${'User not found'}
+    ${'vi'}  | ${vi.user_not_found}
+    ${'en'}  | ${en.user_not_found}
   `('returns $message for unknown user when language is set as $language', async ({ language, message }) => {
     const response = await request(app).get('/api/1.0/users/5').set('Accept-Language', language);
     expect(response.body.message).toBe(message);

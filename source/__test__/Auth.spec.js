@@ -3,6 +3,8 @@ const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
 const bcrypt = require('bcrypt');
+const en = require('../locales/en/translation.json');
+const vi = require('../locales/vi/translation.json');
 
 beforeAll(async () => {
   await sequelize.sync();
@@ -55,8 +57,8 @@ describe('Authentication', () => {
 
   it.each`
     language | message
-    ${'vi'}  | ${'Thông tin đăng nhập không chính xác'}
-    ${'en'}  | ${'Incorrect credentials'}
+    ${'vi'}  | ${vi.authentication_failure}
+    ${'en'}  | ${en.authentication_failure}
   `('return $message when authentication fails and language is set as $language', async ({ language, message }) => {
     const response = await postAuthentication({ email: 'user1@mail.com', password: 'P4ssword' }, { language });
     expect(response.body.message).toBe(message);
@@ -83,8 +85,8 @@ describe('Authentication', () => {
 
   it.each`
     language | message
-    ${'vi'}  | ${'Tài khoản không hoạt động'}
-    ${'en'}  | ${'Account is inactive'}
+    ${'vi'}  | ${vi.inactive_authentication_failure}
+    ${'en'}  | ${en.inactive_authentication_failure}
   `(
     'return $message when authentication fails for inactive account and language is set as $language',
     async ({ language, message }) => {

@@ -3,6 +3,8 @@ const app = require('../src/app');
 const User = require('../src/user/User');
 const sequelize = require('../src/config/database');
 const SMTPServer = require('smtp-server').SMTPServer;
+const en = require('../locales/en/translation.json');
+const vi = require('../locales/vi/translation.json');
 
 let lastMail, server;
 let simulateSmtpFailure = false;
@@ -29,9 +31,9 @@ beforeAll(async () => {
   await sequelize.sync();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   simulateSmtpFailure = false;
-  return User.destroy({ truncate: true });
+  await User.destroy({ truncate: true });
 });
 
 afterAll(async () => {
@@ -60,7 +62,7 @@ describe('User Registration', () => {
 
   it('returns success message when signup request is valid', async () => {
     const response = await postUser();
-    expect(response.body.message).toBe('User created');
+    expect(response.body.message).toBe(en.user_create_success);
   });
 
   it('saves the user to database', async () => {
@@ -113,31 +115,23 @@ describe('User Registration', () => {
     expect(Object.keys(body.validationErrors)).toEqual(['username', 'email']);
   });
 
-  const username_null = 'Username cannot be null';
-  const username_size = 'Must have min 4 and max 32 characters';
-  const email_null = 'E-mail cannot be null';
-  const email_invalid = 'E-mail is not valid';
-  const password_null = 'Password cannot be null';
-  const password_size = 'Password must be at least 6 characters';
-  const password_pattern = 'Password must have at least 1 uppercase, 1 lowercase and 1 number';
-  const email_isalreadyregisted = 'E-mail is already registed';
   it.each`
     field         | value              | expectedMessage
-    ${'username'} | ${null}            | ${username_null}
-    ${'username'} | ${'usr'}           | ${username_size}
-    ${'username'} | ${'a'.repeat(33)}  | ${username_size}
-    ${'email'}    | ${null}            | ${email_null}
-    ${'email'}    | ${'mail.com'}      | ${email_invalid}
-    ${'email'}    | ${'user.mail.com'} | ${email_invalid}
-    ${'email'}    | ${'user@mail'}     | ${email_invalid}
-    ${'password'} | ${null}            | ${password_null}
-    ${'password'} | ${'P4ssw'}         | ${password_size}
-    ${'password'} | ${'alllowercase'}  | ${password_pattern}
-    ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
-    ${'password'} | ${'1234567890'}    | ${password_pattern}
-    ${'password'} | ${'lowerandUPPER'} | ${password_pattern}
-    ${'password'} | ${'lower4nd5667'}  | ${password_pattern}
-    ${'password'} | ${'UPPER4444'}     | ${password_pattern}
+    ${'username'} | ${null}            | ${en.username_null}
+    ${'username'} | ${'usr'}           | ${en.username_size}
+    ${'username'} | ${'a'.repeat(33)}  | ${en.username_size}
+    ${'email'}    | ${null}            | ${en.email_null}
+    ${'email'}    | ${'mail.com'}      | ${en.email_invalid}
+    ${'email'}    | ${'user.mail.com'} | ${en.email_invalid}
+    ${'email'}    | ${'user@mail'}     | ${en.email_invalid}
+    ${'password'} | ${null}            | ${en.password_null}
+    ${'password'} | ${'P4ssw'}         | ${en.password_size}
+    ${'password'} | ${'alllowercase'}  | ${en.password_pattern}
+    ${'password'} | ${'ALLUPPERCASE'}  | ${en.password_pattern}
+    ${'password'} | ${'1234567890'}    | ${en.password_pattern}
+    ${'password'} | ${'lowerandUPPER'} | ${en.password_pattern}
+    ${'password'} | ${'lower4nd5667'}  | ${en.password_pattern}
+    ${'password'} | ${'UPPER4444'}     | ${en.password_pattern}
   `('returns $expectedMessage when $field is $value', async ({ field, expectedMessage, value }) => {
     const user = {
       username: 'user1',
@@ -150,10 +144,10 @@ describe('User Registration', () => {
     expect(body.validationErrors[field]).toBe(expectedMessage);
   });
 
-  it(`returns ${email_isalreadyregisted} when same email is already registed`, async () => {
+  it(`returns ${en.email_isalreadyregisted} when same email is already registed`, async () => {
     await User.create({ ...validUser });
     const response = await postUser();
-    expect(response.body.validationErrors.email).toBe(email_isalreadyregisted);
+    expect(response.body.validationErrors.email).toBe(en.email_isalreadyregisted);
   });
 
   it('returns errors for both username is null and email is already registed', async () => {
@@ -200,7 +194,7 @@ describe('User Registration', () => {
   it('returns Email failure message when sending email fails', async () => {
     simulateSmtpFailure = true;
     const response = await postUser();
-    expect(response.body.message).toBe('E-mail Failure');
+    expect(response.body.message).toBe(en.email_failure);
   });
   it('does not save user to database if activation email fails', async () => {
     simulateSmtpFailure = true;
@@ -214,40 +208,28 @@ describe('User Registration', () => {
       email: validUser.email,
       password: 'P4ssword',
     });
-    expect(response.body.message).toBe('Validation Failure');
+    expect(response.body.message).toBe(en.validation_failure);
   });
 });
 
 describe('Internationalization', () => {
-  const username_null = 'Tên đăng nhập không được để trống';
-  const username_size = 'Tên đăng nhập cần ít nhất 4 kí tự và tối đa 32 kí tự';
-  const email_null = 'E-mail không được để trống';
-  const email_invalid = 'E-mail không tồn tại';
-  const password_null = 'Mật khẩu không được để trống';
-  const password_size = 'Mật khẩu cần ít nhất 6 kí tự';
-  const password_pattern = 'Mật khẩu cần ít nhất 1 chữ in hoa, 1 chữ thường và 1 chữ số';
-  const email_isalreadyregisted = 'E-mail đã được đăng ký';
-  const user_create_success = 'Đăng ký thành công';
-  const email_failure = 'Gửi E-mail không thành công';
-  const validation_failure = 'Xác thực thất bại';
-
   it.each`
     field         | value              | expectedMessage
-    ${'username'} | ${null}            | ${username_null}
-    ${'username'} | ${'usr'}           | ${username_size}
-    ${'username'} | ${'a'.repeat(33)}  | ${username_size}
-    ${'email'}    | ${null}            | ${email_null}
-    ${'email'}    | ${'mail.com'}      | ${email_invalid}
-    ${'email'}    | ${'user.mail.com'} | ${email_invalid}
-    ${'email'}    | ${'user@mail'}     | ${email_invalid}
-    ${'password'} | ${null}            | ${password_null}
-    ${'password'} | ${'P4ssw'}         | ${password_size}
-    ${'password'} | ${'alllowercase'}  | ${password_pattern}
-    ${'password'} | ${'ALLUPPERCASE'}  | ${password_pattern}
-    ${'password'} | ${'1234567890'}    | ${password_pattern}
-    ${'password'} | ${'lowerandUPPER'} | ${password_pattern}
-    ${'password'} | ${'lower4nd5667'}  | ${password_pattern}
-    ${'password'} | ${'UPPER4444'}     | ${password_pattern}
+    ${'username'} | ${null}            | ${vi.username_null}
+    ${'username'} | ${'usr'}           | ${vi.username_size}
+    ${'username'} | ${'a'.repeat(33)}  | ${vi.username_size}
+    ${'email'}    | ${null}            | ${vi.email_null}
+    ${'email'}    | ${'mail.com'}      | ${vi.email_invalid}
+    ${'email'}    | ${'user.mail.com'} | ${vi.email_invalid}
+    ${'email'}    | ${'user@mail'}     | ${vi.email_invalid}
+    ${'password'} | ${null}            | ${vi.password_null}
+    ${'password'} | ${'P4ssw'}         | ${vi.password_size}
+    ${'password'} | ${'alllowercase'}  | ${vi.password_pattern}
+    ${'password'} | ${'ALLUPPERCASE'}  | ${vi.password_pattern}
+    ${'password'} | ${'1234567890'}    | ${vi.password_pattern}
+    ${'password'} | ${'lowerandUPPER'} | ${vi.password_pattern}
+    ${'password'} | ${'lower4nd5667'}  | ${vi.password_pattern}
+    ${'password'} | ${'UPPER4444'}     | ${vi.password_pattern}
   `(
     'returns $expectedMessage when $field is $value when language is set as Vietnamese',
     async ({ field, expectedMessage, value }) => {
@@ -263,22 +245,22 @@ describe('Internationalization', () => {
     }
   );
 
-  it(`returns ${email_isalreadyregisted} when same email is already registed when language is set as Vietnamese`, async () => {
+  it(`returns ${vi.email_isalreadyregisted} when same email is already registed when language is set as Vietnamese`, async () => {
     await User.create({ ...validUser });
     const response = await postUser({ ...validUser }, { language: 'vi' });
-    expect(response.body.validationErrors.email).toBe(email_isalreadyregisted);
+    expect(response.body.validationErrors.email).toBe(vi.email_isalreadyregisted);
   });
 
-  it(`returns success message of ${user_create_success} when signup request is valid`, async () => {
+  it(`returns success message of ${vi.user_create_success} when signup request is valid`, async () => {
     const response = await postUser({ ...validUser }, { language: 'vi' });
-    expect(response.body.message).toBe(user_create_success);
+    expect(response.body.message).toBe(vi.user_create_success);
   });
-  it(`returns ${email_failure} failure message when sending email fails when language is set as Vietnamese`, async () => {
+  it(`returns ${vi.email_failure} failure message when sending email fails when language is set as Vietnamese`, async () => {
     simulateSmtpFailure = true;
     const response = await postUser({ ...validUser }, { language: 'vi' });
-    expect(response.body.message).toBe(email_failure);
+    expect(response.body.message).toBe(vi.email_failure);
   });
-  it(`returns ${validation_failure} message in error response body when validation fails`, async () => {
+  it(`returns ${vi.validation_failure} message in error response body when validation fails`, async () => {
     const response = await postUser(
       {
         username: null,
@@ -287,7 +269,7 @@ describe('Internationalization', () => {
       },
       { language: 'vi' }
     );
-    expect(response.body.message).toBe(validation_failure);
+    expect(response.body.message).toBe(vi.validation_failure);
   });
 });
 
@@ -337,10 +319,10 @@ describe('Account activation', () => {
 
   it.each`
     language | tokenStatus  | message
-    ${'vi'}  | ${'wrong'}   | ${'Tài khoản này chưa được kích hoạt hoặc token không khả dụng'}
-    ${'en'}  | ${'wrong'}   | ${'This account is either active or the token is invalid'}
-    ${'vi'}  | ${'correct'} | ${'Tài khoản đã được kích hoạt'}
-    ${'en'}  | ${'correct'} | ${'Account is activated'}
+    ${'vi'}  | ${'wrong'}   | ${vi.account_activation_failure}
+    ${'en'}  | ${'wrong'}   | ${en.account_activation_failure}
+    ${'vi'}  | ${'correct'} | ${vi.account_activation_success}
+    ${'en'}  | ${'correct'} | ${en.account_activation_success}
   `(
     'returns $message when token is $tokenStatus and language is $language',
     async ({ language, tokenStatus, message }) => {
