@@ -16,6 +16,6 @@
   "authentication_failure": "Thông tin đăng nhập không chính xác",
   "inactive_authentication_failure":"Tài khoản không hoạt động",
   "unauthorized_user_update":"Bạn không có quyền cập nhật người dùng",
-  "unauthorized_user_delete":"Bạn không có quyền xóa người dùng"
-  
+  "unauthorized_user_delete":"Bạn không có quyền xóa người dùng",
+  "email_not_inuse":"Không tìm thấy e-mail"
 }

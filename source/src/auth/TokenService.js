@@ -35,7 +35,6 @@ const deleteToken = async (token) => {
 
 const scheduleCleanup = () => {
   setInterval(async () => {
-    console.log('running cleanup');
     const oneWeekAgo = new Date(Date.now() - ONE_WEEK_IN_MILLIS);
     await Token.destroy({
       where: {
@@ -44,6 +43,6 @@ const scheduleCleanup = () => {
         },
       },
     });
-  }, 1000);
+  }, 60 * 60 * 1000);
 };
 module.exports = { createToken, verify, deleteToken, scheduleCleanup };
