@@ -148,7 +148,7 @@ describe('Token Expiration', () => {
     const savedUser = await addUser();
 
     const token = 'test-token';
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 - 1);
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     await Token.create({
       token: token,
       userId: savedUser.id,
@@ -163,7 +163,7 @@ describe('Token Expiration', () => {
     const savedUser = await addUser();
 
     const token = 'test-token';
-    const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 1);
+    const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
     await Token.create({
       token: token,
       userId: savedUser.id,
@@ -180,7 +180,7 @@ describe('Token Expiration', () => {
     const savedUser = await addUser();
 
     const token = 'test-token';
-    const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 1);
+    const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
     await Token.create({
       token: token,
       userId: savedUser.id,
