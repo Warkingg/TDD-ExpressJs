@@ -7,7 +7,7 @@ const tokenAuthentication = async (req, res, next) => {
     try {
       const user = await TokenService.verify(token);
       req.authenticatedUser = user;
-    // eslint-disable-next-line no-empty
+      // eslint-disable-next-line no-empty
     } catch (err) {}
   }
   next();

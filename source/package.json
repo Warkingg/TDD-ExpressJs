@@ -64,6 +64,10 @@
     "watchPlugins": [
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
+    ],
+    "testPathIgnorePatterns":[
+      "<rootDir>/node_module/",
+      "<rootDir>/config/"
     ]
   }
 }
