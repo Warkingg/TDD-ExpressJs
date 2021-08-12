@@ -138,6 +138,8 @@ router.put(
     if (!errors.isEmpty()) {
       return next(new ValidationException(errors.array()));
     }
+    await UserService.updatePassword(req.body);
+    res.send();
   }
 );
 

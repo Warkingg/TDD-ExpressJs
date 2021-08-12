@@ -90,4 +90,27 @@ const passwordResetRequest = async (email) => {
     throw new EmailException();
   }
 };
-module.exports = { save, findByEmail, activate, getUsers, getUser, updateUser, deleteUser, passwordResetRequest };
+
+const updatePassword = async (updateRequest) => {
+  const user = await findByPasswordResetToken({ where: { passwordResetToken: updateRequest.passwordResetToken } });
+  const hash = bcrypt.hash(updateRequest.password, 10);
+  user.password = hash;
+  await user.save();
+};
+
+const findByPasswordResetToken = (token) =>{
+  return User.findOne({ where: { passwordResetToken: token } });
+
+}
+
+module.exports = {
+  save,
+  findByEmail,
+  activate,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+  passwordResetRequest,
+  updatePassword,
+};

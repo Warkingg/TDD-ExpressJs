@@ -185,7 +185,7 @@ describe('Password Update', () => {
     });
     expect(response.status).toBe(403);
   });
-  it('return 400 when trying to update with invalid password and the reset token is valid', async () => {
+  it('returns 400 when trying to update with invalid password and the reset token is valid', async () => {
     const user = await addUser();
     user.passwordResetToken = 'test-token';
     await user.save();
@@ -215,7 +215,7 @@ describe('Password Update', () => {
     ${'vi'}  | ${'lower4nd5667'}  | ${vi.password_pattern}
     ${'vi'}  | ${'UPPER4444'}     | ${vi.password_pattern}
   `(
-    'returns password vailidation error $message when language is set to $language and the value is $value',
+    'returns password validation error $message when language is set to $language and the value is $value',
     async ({ language, message, value }) => {
       const user = await addUser();
       user.passwordResetToken = 'test-token';
@@ -230,4 +230,25 @@ describe('Password Update', () => {
       expect(response.body.validationErrors.password).toBe(message);
     }
   );
+  it('returns 200 when valid password is sent with valid reset token', async () => {
+    const user = await addUser();
+    user.passwordResetToken = 'test-token';
+    await user.save();
+    const response = await putPasswordUpdate({
+      password: 'N3w-password',
+      passwordResetToken: 'test-token',
+    });
+    expect(response.status).toBe(200);
+  });
+  it('updates the password in database when the request is valid', async () => {
+    const user = await addUser();
+    user.passwordResetToken = 'test-token';
+    await user.save();
+    await putPasswordUpdate({
+      password: 'N3w-password',
+      passwordResetToken: 'test-token',
+    });
+    const userInDB = await User.findOne({ where: { email: 'user1@mail.com' } });
+    expect(userInDB.password).not.toEqual(user.password);
+  });
 });
