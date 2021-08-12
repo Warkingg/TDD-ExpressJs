@@ -44,12 +44,12 @@ describe('Authentication', () => {
     const response = await postAuthentication({ email: 'user1@mail.com', password: 'P4ssword' });
     expect(response.status).toBe(200);
   });
-  it('returns only user id,username and token when login success', async () => {
+  it('returns only user id,username token and image when login success', async () => {
     const user = await addUser();
     const response = await postAuthentication({ email: 'user1@mail.com', password: 'P4ssword' });
     expect(response.body.id).toBe(user.id);
     expect(response.body.username).toBe(user.username);
-    expect(Object.keys(response.body)).toEqual(['id', 'username', 'token']);
+    expect(Object.keys(response.body)).toEqual(['id', 'username', 'token', 'image']);
   });
   it('returns 401 when user does not exist', async () => {
     const response = await postAuthentication({ email: 'user1@mail.com', password: 'P4ssword' });
@@ -187,7 +187,7 @@ describe('Token Expiration', () => {
       lastUsedAt: fourDaysAgo,
     });
     const rightBeforeSendingRequest = new Date();
-    await request(app).get('/api/1.0/users/5').set('Authorization', `Bearer ${token}`)
+    await request(app).get('/api/1.0/users/5').set('Authorization', `Bearer ${token}`);
     const tokenInDB = await Token.findOne({ where: { token: token } });
     expect(tokenInDB.lastUsedAt.getTime()).toBeGreaterThan(rightBeforeSendingRequest.getTime());
   });
