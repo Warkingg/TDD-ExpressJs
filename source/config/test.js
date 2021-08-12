@@ -14,4 +14,6 @@ module.exports = {
       rejectUnauthorized: false,
     },
   },
+  uploadDir: 'upload-test',
+  profileDir: 'profile',
 };
