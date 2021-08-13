@@ -8,6 +8,7 @@ const vi = require('../locales/vi/translation.json');
 const fs = require('fs');
 const path = require('path');
 const config = require('config');
+const { response } = require('express');
 
 const { uploadDir, profileDir } = config;
 const profileDirectory = path.join('.', uploadDir, profileDir);
@@ -20,12 +21,6 @@ beforeEach(async () => {
   await User.destroy({ truncate: { cascade: true } });
 });
 
-afterAll(() => {
-  const files = fs.readdirSync(profileDirectory);
-  for (const file of files) {
-    fs.unlinkSync(path.join(profileDirectory, file));
-  }
-});
 const activeUser = { username: 'user1', email: 'user1@mail.com', password: 'P4ssword', inactive: false };
 const addUser = async (user = { ...activeUser }) => {
   const hash = await bcrypt.hash(user.password, 10);
@@ -154,5 +149,22 @@ describe('User Update', () => {
     const inDBUser = await User.findOne({ where: { id: savedUser.id } });
     const profileImagePath = path.join(profileDirectory, inDBUser.image);
     expect(fs.existsSync(profileImagePath)).toBeTruthy();
+  });
+  it('remove the old image after user upload new one', async () => {
+    const fileInBase64 = readFileAsBase64();
+    const savedUser = await addUser();
+    const validUpdate = { username: 'user1-updated', image: fileInBase64 };
+    const response = await putUser(savedUser.id, validUpdate, {
+      auth: { email: savedUser.email, password: 'P4ssword' },
+    });
+
+    const firstImage = response.body.image;
+
+    await putUser(savedUser.id, validUpdate, {
+      auth: { email: savedUser.email, password: 'P4ssword' },
+    });
+
+    const profileImagePath = path.join(profileDirectory, firstImage);
+    expect(fs.existsSync(profileImagePath)).toBeFalsy();
   });
 });
