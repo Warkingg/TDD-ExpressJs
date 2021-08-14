@@ -19,5 +19,6 @@
   "unauthorized_user_delete":"Bạn không có quyền xóa người dùng",
   "email_not_inuse":"Không tìm thấy e-mail",
   "password_reset_request_success": "Kiểm tra e-mail để đặt lại mật khẩu",
-  "unauthorized_password_reset":"Bạn không có quyền cập nhật mật khẩu. Hãy thử lại theo hướng dẫn cài đặt lại mật khẩu ."
+  "unauthorized_password_reset":"Bạn không có quyền cập nhật mật khẩu. Hãy thử lại theo hướng dẫn cài đặt lại mật khẩu.",
+  "profile_image_size":"Ảnh hồ sơ của bạn không được lớn hơn 2MB"
 }
