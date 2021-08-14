@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon index",
     "test": "cross-env NODE_ENV=test jest --watch --verbose",
-    "posttest":"cross-env NODE_ENV=test node test-cleanup",
+    "posttest": "cross-env NODE_ENV=test node test-cleanup",
     "lint": "eslint ."
   },
   "author": "Phuc Le",
@@ -16,6 +16,7 @@
     "config": "^3.3.6",
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
+    "file-type": "^16.5.3",
     "i18next": "^20.3.5",
     "i18next-fs-backend": "^1.1.1",
     "i18next-http-middleware": "^3.1.4",
@@ -66,7 +67,7 @@
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
     ],
-    "testPathIgnorePatterns":[
+    "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/config/"
     ]

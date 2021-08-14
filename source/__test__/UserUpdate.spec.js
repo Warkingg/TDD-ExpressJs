@@ -8,7 +8,6 @@ const vi = require('../locales/vi/translation.json');
 const fs = require('fs');
 const path = require('path');
 const config = require('config');
-const { response } = require('express');
 
 const { uploadDir, profileDir } = config;
 const profileDirectory = path.join('.', uploadDir, profileDir);
@@ -48,8 +47,8 @@ const putUser = async (id = 5, body = null, options = {}) => {
   return agent.send(body);
 };
 
-const readFileAsBase64 = () => {
-  const filePath = path.join('.', '__test__', 'resources', 'test-png.png');
+const readFileAsBase64 = (file = 'test-png.png') => {
+  const filePath = path.join('.', '__test__', 'resources', file);
   return fs.readFileSync(filePath, { encoding: 'base64' });
 };
 
@@ -190,10 +189,13 @@ describe('User Update', () => {
     }
   );
   it('returns 200 when image size is exactly 2mb', async () => {
-    const fileWithSize2MB = 'a'.repeat(1024 * 1024 * 2);
-    const base64 = Buffer.from(fileWithSize2MB).toString('base64');
+    const testPng = readFileAsBase64();
+    const pngByte = Buffer.from(testPng, 'base64').length;
+    const twoMB = 1024 * 1024 * 2;
+    const filling = 'a'.repeat(twoMB - pngByte);
+    const fillBase64 = Buffer.from(filling).toString('base64');
     const savedUser = await addUser();
-    const validUpdate = { username: 'updated-user', image: base64 };
+    const validUpdate = { username: 'updated-user', image: testPng + fillBase64 };
     const response = await putUser(savedUser.id, validUpdate, {
       auth: { email: savedUser.email, password: 'P4ssword' },
     });
@@ -237,10 +239,6 @@ describe('User Update', () => {
   it.each`
     language | message
     ${'vi'}  | ${vi.profile_image_size}
-    ${'vi'}  | ${vi.profile_image_size}
-    ${'vi'}  | ${vi.profile_image_size}
-    ${'en'}  | ${en.profile_image_size}
-    ${'en'}  | ${en.profile_image_size}
     ${'en'}  | ${en.profile_image_size}
   `(
     'returns bad request with $message when username is updated with $value when language is set as $language',
@@ -250,6 +248,43 @@ describe('User Update', () => {
       const savedUser = await addUser();
       const validUpdate = { username: 'updated-user', image: base64 };
       const response = await putUser(savedUser.id, validUpdate, {
+        auth: { email: savedUser.email, password: 'P4ssword' },
+        language,
+      });
+      expect(response.body.validationErrors.image).toBe(message);
+    }
+  );
+  it.each`
+    file              | status
+    ${'test-gif.gif'} | ${400}
+    ${'test-pdf.pdf'} | ${400}
+    ${'test-txt.txt'} | ${400}
+    ${'test-png.png'} | ${200}
+    ${'test-jpg.jpg'} | ${200}
+  `('returns $status when uploading $file as image', async ({ file, status }) => {
+    const fileInBase64 = readFileAsBase64(file);
+    const savedUser = await addUser();
+    const updateBody = { username: 'user1-updated', image: fileInBase64 };
+    const response = await putUser(savedUser.id, updateBody, {
+      auth: { email: savedUser.email, password: 'P4ssword' },
+    });
+    expect(response.status).toBe(status);
+  });
+  it.each`
+    file              | language | message
+    ${'test-gif.gif'} | ${'vi'}  | ${vi.unsupported_image_file}
+    ${'test-gif.gif'} | ${'en'}  | ${en.unsupported_image_file}
+    ${'test-pdf.pdf'} | ${'vi'}  | ${vi.unsupported_image_file}
+    ${'test-pdf.pdf'} | ${'en'}  | ${en.unsupported_image_file}
+    ${'test-txt.txt'} | ${'vi'}  | ${vi.unsupported_image_file}
+    ${'test-txt.txt'} | ${'en'}  | ${en.unsupported_image_file}
+  `(
+    'returns $message when uploading $file as image when language set as $language',
+    async ({ file, language, message }) => {
+      const fileInBase64 = readFileAsBase64(file);
+      const savedUser = await addUser();
+      const updateBody = { username: 'user1-updated', image: fileInBase64 };
+      const response = await putUser(savedUser.id, updateBody, {
         auth: { email: savedUser.email, password: 'P4ssword' },
         language,
       });
