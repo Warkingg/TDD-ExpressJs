@@ -30,6 +30,9 @@ User.init(
     image: {
       type: Sequelize.STRING,
     },
+    dummy: {
+      type: Sequelize.STRING,
+    },
   },
   {
     sequelize,
