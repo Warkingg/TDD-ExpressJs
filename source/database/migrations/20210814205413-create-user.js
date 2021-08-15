@@ -17,6 +17,19 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
+      inactive: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
+      activationToken: {
+        type: Sequelize.STRING,
+      },
+      passwordResetToken: {
+        type: Sequelize.STRING,
+      },
+      image: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -27,6 +40,7 @@ module.exports = {
       },
     });
   },
+  // eslint-disable-next-line no-unused-vars
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('users');
   },
